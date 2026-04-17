@@ -11,16 +11,32 @@
 
 ## 数据源
 阿里云天池 - 淘宝用户行为数据集（约 200 万条记录）
+## 📁 项目结构
+```text
+user_behavior_dw_project/
+├── app.py # Flask 主程序
+├── etl.py # ETL 脚本（分块读取+清洗）
+├── requirements.txt # Python 依赖
+├── sample_data.csv # 样例数据（小数据集）
+├── README.md # 项目说明文档
+├── templates/
+│ └── dashboard.html # 可视化前端模板
+└── images/
+├── architecture.png # 系统架构图
+├── dau_chart1.png # DAU 效果图1
+└── dau_chart2.png # DAU 效果图2
+```
+
 
 ## 系统架构
-![架构图.png](%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
+![.architecture.png](images/.architecture.png)
 
 ## 数据流转
-CSV → ODS(原始层) → DWD(明细层) → DWS(汇总层) → ADS(应用层) → 可视化看板
+CSV → DWD(明细层) → DWS(汇总层) → ADS(应用层) → 可视化看板
 
 ## 核心功能
 1. 自动化 ETL：分块读取大数据文件，清洗并存入 MySQL DWD 表
-2. 数仓分层建模：ODS → DWD → DWS → ADS
+2. 数仓分层建模：DWD → DWS → ADS
 3. 业务指标分析：日活跃用户(DAU)、转化漏斗、热门商品等
 4. 可视化看板：展示 DAU 趋势图
 
@@ -32,24 +48,31 @@ CSV → ODS(原始层) → DWD(明细层) → DWS(汇总层) → ADS(应用层) 
 - 安装 Python 依赖：`pip install -r requirements.txt`
 
 ### 2. 执行 ETL
+
+#### 2.1 生成 DWD 表（运行 ETL 脚本）
 ```bash
-# 创建表
-mysql -u root -p itcast < etl/create_tables.sql
-# 运行 DWD ETL（需要修改文件路径）
-python etl/dwd_etl.py
-# 执行 DWS 和 ADS 聚合
-mysql -u root -p itcast < etl/dws_etl.sql
-mysql -u root -p itcast < etl/ads_etl.sql
+python etl.py
 ```
+#### 2.2 创建 DWS 和 ADS 表
+- 在 MySQL 客户端（或任意 SQL 工具）中，依次执行以下 SQL 语句：
+
+- 创建 DWS 表并聚合数据（用户-日汇总）
+
+- 创建 DAU 表 ads_daily_active_users
+
+- 创建漏斗表 ads_funnel
+
+- 创建热门商品表 ads_hot_products
+
+- 添加索引优化查询
 ### 3. 启动可视化看板
 ```bash
-cd flask_app
 python app.py
 ```
 - 访问 http://127.0.0.1:5000 查看图表。
 
 - 项目效果
-https://images/dau_chart.png
+![DAU趋势图1](images/dau_chart1.png) ![DAU趋势图2](images/dau_chart2.png)
 
 - 下一步优化
 使用调度工具（如 Airflow）定时执行 ETL、
@@ -57,4 +80,4 @@ https://images/dau_chart.png
 
 作者
 平成城
-GitHub: [你的主页链接]
+GitHub: https://github.com/77889023/user-behavior-data-warehouse
